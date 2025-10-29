@@ -1,228 +1,146 @@
 import { useEffect, useMemo, useState } from "react";
 import Header from "./components/Header";
-import Hero from "./components/Hero";
 import Filters from "./components/Filters";
 import ProfessionalsGrid from "./components/ProfessionalsGrid";
-import Footer from "./components/Footer";
-import LoginModal from "./components/LoginModal";
 import BookingModal from "./components/BookingModal";
 
-const DEFAULT_PROFESSIONALS = [
-  // Vijayawada
-  { id: "p1", name: "Ravi Kumar", service: "plumber", location: "Vijayawada", rating: 4.7, phone: "+91 9876543210", bio: "Expert in leak repairs, pipe fitting, and bathroom installations with 8+ years experience.", availability: ["Today 2:00 PM", "Today 6:00 PM", "Tomorrow 10:00 AM", "Tomorrow 4:00 PM"] },
-  { id: "e1", name: "Sumanth Reddy", service: "electrician", location: "Vijayawada", rating: 4.6, phone: "+91 9876543201", bio: "Licensed electrician for wiring, MCB panels, inverter setup and emergency fixes.", availability: ["Today 1:00 PM", "Today 5:30 PM", "Tomorrow 11:30 AM"] },
-  { id: "g1", name: "Harika Devi", service: "gas", location: "Vijayawada", rating: 4.8, phone: "+91 9876543299", bio: "Gas stove, regulator, and pipeline checks. Safety-first certified technician.", availability: ["Today 3:00 PM", "Tomorrow 9:00 AM", "Tomorrow 6:00 PM"] },
-  // Guntur
-  { id: "p2", name: "Mahesh Babu", service: "plumber", location: "Guntur", rating: 4.5, phone: "+91 9876500001", bio: "Quick response for blockages, tap replacements, and water heater installation.", availability: ["Today 12:00 PM", "Tomorrow 10:30 AM", "Tomorrow 5:00 PM"] },
-  { id: "e2", name: "Anil Kumar", service: "electrician", location: "Guntur", rating: 4.9, phone: "+91 9876500002", bio: "Specialist in short-circuit fixes, fans, lights, and earthing solutions.", availability: ["Today 4:00 PM", "Tomorrow 12:00 PM"] },
-  // Visakhapatnam
-  { id: "e3", name: "Naveen Varma", service: "electrician", location: "Visakhapatnam", rating: 4.7, phone: "+91 9876500003", bio: "Industrial and home electrical service with fast on-site troubleshooting.", availability: ["Today 11:00 AM", "Tomorrow 2:30 PM"] },
-  { id: "p3", name: "Sruthi K", service: "plumber", location: "Visakhapatnam", rating: 4.6, phone: "+91 9876500004", bio: "Sanitary fittings, kitchen plumbing, and pressure pump setups.", availability: ["Today 6:30 PM", "Tomorrow 9:30 AM"] },
-  { id: "g2", name: "Vamsi Krishna", service: "gas", location: "Visakhapatnam", rating: 4.8, phone: "+91 9876500005", bio: "Pipeline checks, gas leak detection and quick replacements.", availability: ["Today 1:30 PM", "Tomorrow 11:00 AM"] },
-  // Tirupati
-  { id: "p4", name: "Sita Ram", service: "plumber", location: "Tirupati", rating: 4.4, phone: "+91 9876500006", bio: "All bathroom and kitchen plumbing with same-day service.", availability: ["Today 5:00 PM", "Tomorrow 10:00 AM"] },
-  { id: "e4", name: "Pranay Teja", service: "electrician", location: "Tirupati", rating: 4.7, phone: "+91 9876500007", bio: "MCB, wiring, and appliance connection expert.", availability: ["Today 12:30 PM", "Tomorrow 3:00 PM"] },
-  // Nellore
-  { id: "g3", name: "Kavya Sri", service: "gas", location: "Nellore", rating: 4.6, phone: "+91 9876500008", bio: "Cooktop servicing, regulator changes, and burner cleaning.", availability: ["Today 2:30 PM", "Tomorrow 4:30 PM"] },
-  { id: "e5", name: "Rahul Dev", service: "electrician", location: "Nellore", rating: 4.5, phone: "+91 9876500009", bio: "Emergency power restoration and fault detection.", availability: ["Today 3:45 PM", "Tomorrow 1:15 PM"] },
-  // Rajahmundry
-  { id: "p5", name: "Bhargav", service: "plumber", location: "Rajahmundry", rating: 4.7, phone: "+91 9876500010", bio: "Water purifier, geyser, and pipeline installation.", availability: ["Today 1:45 PM", "Tomorrow 11:30 AM"] },
-  { id: "g4", name: "Shankar", service: "gas", location: "Rajahmundry", rating: 4.6, phone: "+91 9876500011", bio: "LPG hose, nozzle replacement and safety checks.", availability: ["Today 4:45 PM", "Tomorrow 12:45 PM"] },
-  // Kakinada
-  { id: "e6", name: "Sowmya", service: "electrician", location: "Kakinada", rating: 4.8, phone: "+91 9876500012", bio: "Smart-home wiring, LED panels and inverter maintenance.", availability: ["Today 6:00 PM", "Tomorrow 10:15 AM"] },
-  // Vizianagaram
-  { id: "p6", name: "Venkatesh", service: "plumber", location: "Vizianagaram", rating: 4.4, phone: "+91 9876500013", bio: "Clog removal, faucet repair and water line fixes.", availability: ["Today 12:15 PM", "Tomorrow 2:15 PM"] },
-  // Anantapur
-  { id: "e7", name: "Manoj Kumar", service: "electrician", location: "Anantapur", rating: 4.5, phone: "+91 9876500014", bio: "Fan, tube-light, and switchboard services.", availability: ["Today 5:15 PM", "Tomorrow 9:45 AM"] },
-  // Kadapa
-  { id: "g5", name: "Niharika", service: "gas", location: "Kadapa", rating: 4.7, phone: "+91 9876500015", bio: "Full kitchen gas pipeline inspection and repair.", availability: ["Today 2:45 PM", "Tomorrow 1:00 PM"] },
-];
+// Expanded catalog of professionals across Andhra Pradesh
+const PROFESSIONALS = [
+  // Plumbers
+  { id: "pl-1", name: "Ravi Kumar", location: "Vijayawada", service: "plumber", rating: 4.7, bio: "Expert in leak repairs, pipe fitting, and bathroom installations.", phone: "+91 9876543101", availability: ["Today · 10:00-11:00", "Today · 12:00-13:00", "Tomorrow · 09:00-10:00", "Tomorrow · 16:00-17:00"] },
+  { id: "pl-2", name: "Suresh B", location: "Guntur", service: "plumber", rating: 4.5, bio: "Quick response for emergencies, water tank and motor setup.", phone: "+91 9876543102", availability: ["Today · 11:00-12:00", "Today · 15:00-16:00", "Tomorrow · 10:00-11:00"] },
+  { id: "pl-3", name: "Mohan P", location: "Visakhapatnam", service: "plumber", rating: 4.8, bio: "15+ years experience, PVC/CPVC/UPVC specialist.", phone: "+91 9876543103", availability: ["Today · 09:00-10:00", "Today · 17:00-18:00", "Tomorrow · 14:00-15:00"] },
+  { id: "pl-4", name: "Anil K", location: "Tirupati", service: "plumber", rating: 4.3, bio: "Bathroom remodeling, geyser connection, drainage cleaning.", phone: "+91 9876543104", availability: ["Today · 13:00-14:00", "Tomorrow · 11:00-12:00", "Tomorrow · 18:00-19:00"] },
+  { id: "pl-5", name: "Venkatesh", location: "Nellore", service: "plumber", rating: 4.6, bio: "Kitchen and bathroom fixtures, tap and shower replacements.", phone: "+91 9876543105", availability: ["Today · 10:30-11:30", "Tomorrow · 09:30-10:30", "Tomorrow · 15:30-16:30"] },
+  { id: "pl-6", name: "Karthik", location: "Rajahmundry", service: "plumber", rating: 4.4, bio: "Overhead tank installation and maintenance specialist.", phone: "+91 9876543106", availability: ["Today · 12:30-13:30", "Tomorrow · 10:30-11:30", "Tomorrow · 17:30-18:30"] },
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+  // Electricians
+  { id: "el-1", name: "Pradeep", location: "Vijayawada", service: "electrician", rating: 4.8, bio: "Wiring, MCB/DB upgrades, inverter and stabilizer setup.", phone: "+91 9876543201", availability: ["Today · 10:00-11:00", "Today · 16:00-17:00", "Tomorrow · 11:00-12:00"] },
+  { id: "el-2", name: "Raghav", location: "Guntur", service: "electrician", rating: 4.6, bio: "Fan, light, switchboard installation and fault finding.", phone: "+91 9876543202", availability: ["Today · 12:00-13:00", "Tomorrow · 09:00-10:00", "Tomorrow · 13:00-14:00"] },
+  { id: "el-3", name: "Sai Teja", location: "Visakhapatnam", service: "electrician", rating: 4.7, bio: "Smart doorbells, Wi-Fi switches, and home automation basics.", phone: "+91 9876543203", availability: ["Today · 11:00-12:00", "Today · 14:00-15:00", "Tomorrow · 10:00-11:00"] },
+  { id: "el-4", name: "Nagaraju", location: "Tirupati", service: "electrician", rating: 4.5, bio: "Geyser, chimney, and kitchen appliance wiring.", phone: "+91 9876543204", availability: ["Today · 09:00-10:00", "Tomorrow · 12:00-13:00", "Tomorrow · 17:00-18:00"] },
+  { id: "el-5", name: "Mahesh", location: "Kakinada", service: "electrician", rating: 4.4, bio: "Short-circuit fixes and safety checks.", phone: "+91 9876543205", availability: ["Today · 13:00-14:00", "Tomorrow · 14:00-15:00", "Tomorrow · 18:00-19:00"] },
+  { id: "el-6", name: "Vivek", location: "Visakhapatnam", service: "electrician", rating: 4.9, bio: "Premium fittings, LED upgrades, and neat workmanship.", phone: "+91 9876543206", availability: ["Today · 15:00-16:00", "Tomorrow · 11:30-12:30", "Tomorrow · 16:30-17:30"] },
+
+  // Gas service
+  { id: "gs-1", name: "Imran", location: "Vijayawada", service: "gas", rating: 4.6, bio: "Gas stove repair, pipeline inspection, leak detection.", phone: "+91 9876543301", availability: ["Today · 10:00-11:00", "Today · 12:00-13:00", "Tomorrow · 09:00-10:00"] },
+  { id: "gs-2", name: "Rafi", location: "Guntur", service: "gas", rating: 4.5, bio: "Regulator, hose replacement, and burner cleaning.", phone: "+91 9876543302", availability: ["Today · 11:00-12:00", "Tomorrow · 12:00-13:00", "Tomorrow · 15:00-16:00"] },
+  { id: "gs-3", name: "Jayanth", location: "Visakhapatnam", service: "gas", rating: 4.7, bio: "Certified technician for safety-first gas work.", phone: "+91 9876543303", availability: ["Today · 14:00-15:00", "Tomorrow · 10:00-11:00", "Tomorrow · 17:00-18:00"] },
+  { id: "gs-4", name: "Farhan", location: "Tirupati", service: "gas", rating: 4.3, bio: "New pipeline fitting and stove ignition repairs.", phone: "+91 9876543304", availability: ["Today · 09:30-10:30", "Tomorrow · 13:30-14:30", "Tomorrow · 18:30-19:30"] },
+  { id: "gs-5", name: "Naresh", location: "Nellore", service: "gas", rating: 4.4, bio: "Emergency leak control and ventilation checks.", phone: "+91 9876543305", availability: ["Today · 16:00-17:00", "Tomorrow · 11:00-12:00", "Tomorrow · 16:00-17:00"] },
+
+  // AC Repair
+  { id: "ac-1", name: "Arjun", location: "Vijayawada", service: "electrician", rating: 4.6, bio: "AC installation, gas refill, and servicing.", phone: "+91 9876543401", availability: ["Today · 10:00-11:00", "Tomorrow · 15:00-16:00", "Tomorrow · 18:00-19:00"] },
+  { id: "ac-2", name: "Shiva", location: "Visakhapatnam", service: "electrician", rating: 4.5, bio: "Split/Window AC troubleshooting and maintenance.", phone: "+91 9876543402", availability: ["Today · 11:00-12:00", "Today · 17:00-18:00", "Tomorrow · 12:00-13:00"] },
+
+  // Locksmith
+  { id: "ls-1", name: "Ramesh", location: "Vijayawada", service: "electrician", rating: 4.4, bio: "Emergency door unlocks and lock replacements.", phone: "+91 9876543501", availability: ["Today · 09:00-10:00", "Today · 18:00-19:00", "Tomorrow · 10:00-11:00"] },
+  { id: "ls-2", name: "Gopi", location: "Guntur", service: "electrician", rating: 4.2, bio: "Smart lock setup and key duplication.", phone: "+91 9876543502", availability: ["Today · 12:00-13:00", "Tomorrow · 09:00-10:00", "Tomorrow · 14:00-15:00"] },
+
+  // Carpenter
+  { id: "cp-1", name: "Srinu", location: "Rajahmundry", service: "plumber", rating: 4.5, bio: "Furniture repair, assembly, and custom carpentry.", phone: "+91 9876543601", availability: ["Today · 11:00-12:00", "Today · 16:00-17:00", "Tomorrow · 12:00-13:00"] },
+  { id: "cp-2", name: "Hari", location: "Vizianagaram", service: "plumber", rating: 4.3, bio: "Door, window, and hinge fixes.", phone: "+91 9876543602", availability: ["Today · 10:00-11:00", "Tomorrow · 15:00-16:00", "Tomorrow · 18:00-19:00"] },
+
+  // Cleaning
+  { id: "cl-1", name: "Deepika", location: "Visakhapatnam", service: "plumber", rating: 4.7, bio: "Kitchen and bathroom deep cleaning expert.", phone: "+91 9876543701", availability: ["Today · 09:00-10:00", "Today · 14:00-15:00", "Tomorrow · 11:00-12:00"] },
+  { id: "cl-2", name: "Sanjana", location: "Tirupati", service: "plumber", rating: 4.6, bio: "Sofa, mattress, and home sanitization.", phone: "+91 9876543702", availability: ["Today · 12:00-13:00", "Tomorrow · 10:00-11:00", "Tomorrow · 16:00-17:00"] },
+
+  // Pest Control
+  { id: "pc-1", name: "Anvesh", location: "Nellore", service: "gas", rating: 4.5, bio: "Termite, cockroach, and mosquito control.", phone: "+91 9876543801", availability: ["Today · 13:00-14:00", "Tomorrow · 09:00-10:00", "Tomorrow · 14:00-15:00"] },
+  { id: "pc-2", name: "Vasanth", location: "Kakinada", service: "gas", rating: 4.4, bio: "Eco-friendly pest management solutions.", phone: "+91 9876543802", availability: ["Today · 11:30-12:30", "Tomorrow · 12:30-13:30", "Tomorrow · 17:30-18:30"] },
+];
 
 export default function App() {
   const [query, setQuery] = useState("");
   const [service, setService] = useState("");
+  const [bookings, setBookings] = useState(() => {
+    try {
+      const raw = localStorage.getItem("eh_bookings");
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
   const [user, setUser] = useState(null);
-  const [loginOpen, setLoginOpen] = useState(false);
 
-  const [bookingOpen, setBookingOpen] = useState(false);
-  const [selectedPro, setSelectedPro] = useState(null);
-  const [bookings, setBookings] = useState([]);
-  const [toast, setToast] = useState("");
-
-  const [professionals, setProfessionals] = useState(DEFAULT_PROFESSIONALS);
-  const [loadingPros, setLoadingPros] = useState(false);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("eh_user");
-    if (saved) {
-      try { setUser(JSON.parse(saved)); } catch { /* ignore */ }
-    }
-    const savedBookings = localStorage.getItem("eh_bookings");
-    if (savedBookings) {
-      try { setBookings(JSON.parse(savedBookings)); } catch { /* ignore */ }
-    }
-  }, []);
-
-  useEffect(() => {
-    if (user) localStorage.setItem("eh_user", JSON.stringify(user));
-    else localStorage.removeItem("eh_user");
-  }, [user]);
+  // Booking modal state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [activePro, setActivePro] = useState(null);
 
   useEffect(() => {
     localStorage.setItem("eh_bookings", JSON.stringify(bookings));
   }, [bookings]);
 
-  // Fetch professionals from backend and map to UI shape
-  useEffect(() => {
-    async function fetchWorkers() {
-      setLoadingPros(true);
-      try {
-        const params = new URLSearchParams();
-        if (service) params.set("service_type", service);
-        if (query) params.set("location", query);
-        const res = await fetch(`${BACKEND_URL}/workers?${params.toString()}`);
-        if (!res.ok) throw new Error("Failed to load workers");
-        const data = await res.json();
-        const mapped = data.map((w) => ({
-          id: w.id,
-          name: w.name,
-          service: w.service_type,
-          location: w.location,
-          rating: w.rating ?? 4.6,
-          phone: w.phone || "",
-          bio: w.bio || "",
-          availability: Array.isArray(w.availability) && w.availability.length > 0 ? w.availability : ["09:00-11:00", "13:00-15:00"],
-        }));
-        setProfessionals(mapped);
-      } catch (e) {
-        // fallback to default list if backend not reachable
-        setProfessionals(DEFAULT_PROFESSIONALS);
-      } finally {
-        setLoadingPros(false);
-      }
-    }
-    fetchWorkers();
-  }, [service, query]);
-
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return professionals.filter((p) => {
+    return PROFESSIONALS.filter((p) => {
       const matchesService = service ? p.service === service : true;
-      const matchesQuery = q
-        ? p.location.toLowerCase().includes(q) || p.name.toLowerCase().includes(q)
+      const matchesQuery = query
+        ? p.location.toLowerCase().includes(query.toLowerCase()) || p.name.toLowerCase().includes(query.toLowerCase())
         : true;
       return matchesService && matchesQuery;
-    });
-  }, [query, service, professionals]);
+    }).sort((a, b) => b.rating - a.rating);
+  }, [query, service]);
 
-  function openBooking(pro) {
-    setSelectedPro(pro);
-    setBookingOpen(true);
-  }
+  const handleBook = (pro) => {
+    setActivePro(pro);
+    setModalOpen(true);
+  };
 
-  function deriveServiceDateISO(slotStr) {
-    try {
-      if (!slotStr) return new Date().toISOString().slice(0, 10);
-      const lower = slotStr.toLowerCase();
-      const today = new Date();
-      if (lower.startsWith("today")) {
-        return today.toISOString().slice(0, 10);
-      }
-      if (lower.startsWith("tomorrow")) {
-        const t = new Date(today);
-        t.setDate(today.getDate() + 1);
-        return t.toISOString().slice(0, 10);
-      }
-      // If slot is a range like "09:00-11:00" we use today
-      return today.toISOString().slice(0, 10);
-    } catch {
-      return new Date().toISOString().slice(0, 10);
-    }
-  }
-
-  async function syncBookingToBackend(localRecord, note) {
-    try {
-      if (!user) return; // require login for backend persistence
-      const payload = {
-        user_id: user.id,
-        worker_id: localRecord.professionalId,
-        service_date: deriveServiceDateISO(localRecord.slot),
-        time_slot: localRecord.slot,
-        address: (note && note.trim()) || user.address || "Address to be confirmed",
-      };
-      await fetch(`${BACKEND_URL}/bookings`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-    } catch (e) {
-      // Silently ignore; local booking still shows
-    }
-  }
-
-  function handleConfirmBooking(payload) {
-    const withUser = user ? { userId: user.id, userName: user.name || user.email } : null;
-    const record = { id: `${payload.professionalId}-${Date.now()}`, ...payload, ...(withUser || {}), status: "confirmed" };
-    setBookings((prev) => [record, ...prev]);
-    setBookingOpen(false);
-    setToast(`Booked ${payload.slot} with ${payload.professionalName}`);
-    // fire-and-forget sync to backend
-    syncBookingToBackend(record, payload.note);
-    setTimeout(() => setToast(""), 3000);
-  }
+  const handleConfirmBooking = (payload) => {
+    setBookings((prev) => [payload, ...prev]);
+    setModalOpen(false);
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
-      <Header user={user} onLoginClick={() => setLoginOpen(true)} onLogout={() => setUser(null)} />
-      <Hero />
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      <Header
+        user={user}
+        onLoginClick={() => setUser({ name: "Guest" })}
+        onLogout={() => setUser(null)}
+      />
 
-      <main className="mx-auto max-w-7xl px-4">
-        <div className="mb-6 -mt-8">
-          <Filters query={query} setQuery={setQuery} service={service} setService={setService} />
-        </div>
+      <main className="mx-auto max-w-7xl px-4 py-8 space-y-8">
+        <section className="text-center">
+          <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900">Emergency Home Services</h1>
+          <p className="mt-2 text-gray-600">Plumbers, Electricians, Gas Service and more — trusted pros near you</p>
+        </section>
 
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl md:text-2xl font-bold">Available professionals</h2>
-          <span className="text-sm text-gray-600">{loadingPros ? "Loading..." : `${filtered.length} found`}</span>
-        </div>
+        <Filters query={query} setQuery={setQuery} service={service} setService={setService} />
 
-        <ProfessionalsGrid professionals={filtered} onBook={openBooking} />
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">Available professionals</h2>
+            <span className="text-sm text-gray-600">{filtered.length} found</span>
+          </div>
+          <ProfessionalsGrid professionals={filtered} onBook={handleBook} />
+        </section>
 
-        {bookings.length > 0 && (
-          <section className="mt-10">
-            <h3 className="mb-3 text-lg font-semibold">Your bookings</h3>
+        <section className="space-y-3">
+          <h3 className="text-base font-semibold text-gray-900">Your bookings</h3>
+          {bookings.length === 0 ? (
+            <p className="text-sm text-gray-600">No bookings yet. Pick a professional and book a convenient slot.</p>
+          ) : (
             <ul className="divide-y rounded-lg border bg-white">
-              {bookings.map((b) => (
-                <li key={b.id} className="flex flex-col gap-1 px-4 py-3 md:flex-row md:items-center md:justify-between">
+              {bookings.map((b, idx) => (
+                <li key={idx} className="p-4 text-sm flex flex-wrap items-center gap-2 justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{b.professionalName} • {b.service}</p>
-                    <p className="text-sm text-gray-600">{b.location} • {b.slot}</p>
+                    <p className="font-medium text-gray-900">{b.professionalName}</p>
+                    <p className="text-gray-600">{b.service.toUpperCase()} · {b.location}</p>
                   </div>
-                  <span className="mt-1 inline-flex w-max rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 md:mt-0">{b.status}</span>
+                  <div className="text-gray-700">{b.slot}</div>
                 </li>
               ))}
             </ul>
-          </section>
-        )}
+          )}
+        </section>
       </main>
 
-      <Footer />
-
-      <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} onAuthSuccess={setUser} />
       <BookingModal
-        open={bookingOpen}
-        onClose={() => setBookingOpen(false)}
-        professional={selectedPro}
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        professional={activePro}
         onConfirm={handleConfirmBooking}
       />
-
-      {toast && (
-        <div className="fixed bottom-4 left-1/2 z-[70] -translate-x-1/2 rounded-lg bg-gray-900 px-4 py-2 text-sm text-white shadow-lg">
-          {toast}
-        </div>
-      )}
     </div>
   );
 }
