@@ -38,6 +38,8 @@ const DEFAULT_PROFESSIONALS = [
   { id: "g5", name: "Niharika", service: "gas", location: "Kadapa", rating: 4.7, phone: "+91 9876500015", bio: "Full kitchen gas pipeline inspection and repair.", availability: ["Today 2:45 PM", "Tomorrow 1:00 PM"] },
 ];
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+
 export default function App() {
   const [query, setQuery] = useState("");
   const [service, setService] = useState("");
@@ -48,6 +50,9 @@ export default function App() {
   const [selectedPro, setSelectedPro] = useState(null);
   const [bookings, setBookings] = useState([]);
   const [toast, setToast] = useState("");
+
+  const [professionals, setProfessionals] = useState(DEFAULT_PROFESSIONALS);
+  const [loadingPros, setLoadingPros] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("eh_user");
@@ -69,20 +74,92 @@ export default function App() {
     localStorage.setItem("eh_bookings", JSON.stringify(bookings));
   }, [bookings]);
 
+  // Fetch professionals from backend and map to UI shape
+  useEffect(() => {
+    async function fetchWorkers() {
+      setLoadingPros(true);
+      try {
+        const params = new URLSearchParams();
+        if (service) params.set("service_type", service);
+        if (query) params.set("location", query);
+        const res = await fetch(`${BACKEND_URL}/workers?${params.toString()}`);
+        if (!res.ok) throw new Error("Failed to load workers");
+        const data = await res.json();
+        const mapped = data.map((w) => ({
+          id: w.id,
+          name: w.name,
+          service: w.service_type,
+          location: w.location,
+          rating: w.rating ?? 4.6,
+          phone: w.phone || "",
+          bio: w.bio || "",
+          availability: Array.isArray(w.availability) && w.availability.length > 0 ? w.availability : ["09:00-11:00", "13:00-15:00"],
+        }));
+        setProfessionals(mapped);
+      } catch (e) {
+        // fallback to default list if backend not reachable
+        setProfessionals(DEFAULT_PROFESSIONALS);
+      } finally {
+        setLoadingPros(false);
+      }
+    }
+    fetchWorkers();
+  }, [service, query]);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return DEFAULT_PROFESSIONALS.filter((p) => {
+    return professionals.filter((p) => {
       const matchesService = service ? p.service === service : true;
       const matchesQuery = q
         ? p.location.toLowerCase().includes(q) || p.name.toLowerCase().includes(q)
         : true;
       return matchesService && matchesQuery;
     });
-  }, [query, service]);
+  }, [query, service, professionals]);
 
   function openBooking(pro) {
     setSelectedPro(pro);
     setBookingOpen(true);
+  }
+
+  function deriveServiceDateISO(slotStr) {
+    try {
+      if (!slotStr) return new Date().toISOString().slice(0, 10);
+      const lower = slotStr.toLowerCase();
+      const today = new Date();
+      if (lower.startsWith("today")) {
+        return today.toISOString().slice(0, 10);
+      }
+      if (lower.startsWith("tomorrow")) {
+        const t = new Date(today);
+        t.setDate(today.getDate() + 1);
+        return t.toISOString().slice(0, 10);
+      }
+      // If slot is a range like "09:00-11:00" we use today
+      return today.toISOString().slice(0, 10);
+    } catch {
+      return new Date().toISOString().slice(0, 10);
+    }
+  }
+
+  async function syncBookingToBackend(localRecord, note) {
+    try {
+      if (!user) return; // require login for backend persistence
+      const payload = {
+        user_id: user.id,
+        worker_id: localRecord.professionalId,
+        service_date: deriveServiceDateISO(localRecord.slot),
+        time_slot: localRecord.slot,
+        address: (note && note.trim()) || user.address || "Address to be confirmed",
+      };
+      await fetch(`${BACKEND_URL}/bookings`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+    } catch (e) {
+      // Silently ignore; local booking still shows
+    }
   }
 
   function handleConfirmBooking(payload) {
@@ -91,6 +168,8 @@ export default function App() {
     setBookings((prev) => [record, ...prev]);
     setBookingOpen(false);
     setToast(`Booked ${payload.slot} with ${payload.professionalName}`);
+    // fire-and-forget sync to backend
+    syncBookingToBackend(record, payload.note);
     setTimeout(() => setToast(""), 3000);
   }
 
@@ -106,7 +185,7 @@ export default function App() {
 
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-xl md:text-2xl font-bold">Available professionals</h2>
-          <span className="text-sm text-gray-600">{filtered.length} found</span>
+          <span className="text-sm text-gray-600">{loadingPros ? "Loading..." : `${filtered.length} found`}</span>
         </div>
 
         <ProfessionalsGrid professionals={filtered} onBook={openBooking} />
