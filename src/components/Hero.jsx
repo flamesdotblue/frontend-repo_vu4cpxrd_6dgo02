@@ -1,36 +1,47 @@
+import { Wrench, Plug, Flame } from "lucide-react";
+
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-white" />
-      <div className="relative max-w-6xl mx-auto px-4 py-12 md:py-16">
-        <div className="grid md:grid-cols-2 gap-8 items-center">
+    <section className="relative">
+      <div className="absolute inset-0 bg-gradient-to-b from-blue-50 via-white to-white pointer-events-none" />
+      <div className="mx-auto max-w-7xl px-4 py-16 md:py-24 relative">
+        <div className="grid md:grid-cols-2 gap-10 items-center">
           <div>
-            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-gray-900">On-demand help for plumbing, electrical, and gas issues</h1>
-            <p className="mt-4 text-gray-600 text-lg">Book trusted professionals near you. Transparent schedules, instant booking, and reliable service — 24/7.</p>
-            <div className="mt-6 flex items-center gap-3">
-              <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm">Verified Pros</span>
-              <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-sm">Same-day Slots</span>
-              <span className="px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-sm">100% Secure</span>
+            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-gray-900">
+              Fast, reliable help for home emergencies in Andhra Pradesh
+            </h1>
+            <p className="mt-4 text-lg text-gray-600">
+              Book trusted plumbers, electricians, and gas technicians near you in minutes.
+              Available across Vijayawada, Guntur, Vizag, Tirupati, and more.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <span className="inline-flex items-center gap-2 rounded-full bg-blue-100 text-blue-700 px-3 py-1 text-sm">
+                <Wrench className="h-4 w-4" /> Plumbers
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-full bg-amber-100 text-amber-700 px-3 py-1 text-sm">
+                <Plug className="h-4 w-4" /> Electricians
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-full bg-red-100 text-red-700 px-3 py-1 text-sm">
+                <Flame className="h-4 w-4" /> Gas Services
+              </span>
             </div>
           </div>
-          <div className="md:pl-10">
-            <div className="rounded-xl border shadow-sm bg-white p-4">
-              <div className="aspect-video rounded-lg bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100 flex items-center justify-center text-center">
-                <div>
-                  <p className="font-semibold text-gray-800">Emergency Home Services</p>
-                  <p className="text-gray-500 text-sm">Book a trusted professional in minutes</p>
+          <div className="relative">
+            <div className="aspect-video w-full rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 p-1 shadow-xl">
+              <div className="h-full w-full rounded-lg bg-white grid place-items-center">
+                <div className="text-center p-6">
+                  <p className="text-2xl font-semibold">Book in 3 easy steps</p>
+                  <ol className="mt-4 text-gray-600 space-y-2 text-left list-decimal list-inside">
+                    <li>Choose a service and location</li>
+                    <li>Pick a professional and time</li>
+                    <li>Confirm your booking</li>
+                  </ol>
                 </div>
               </div>
-              <ul className="mt-4 grid grid-cols-2 gap-2 text-sm text-gray-600">
-                <li className="px-3 py-2 bg-gray-50 rounded-md">Plumbers</li>
-                <li className="px-3 py-2 bg-gray-50 rounded-md">Electricians</li>
-                <li className="px-3 py-2 bg-gray-50 rounded-md">Gas Services</li>
-                <li className="px-3 py-2 bg-gray-50 rounded-md">General Repairs</li>
-              </ul>
             </div>
           </div>
         </div>
       </div>
     </section>
-  )
+  );
 }
