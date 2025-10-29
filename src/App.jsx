@@ -5,6 +5,7 @@ import Filters from "./components/Filters";
 import ProfessionalsGrid from "./components/ProfessionalsGrid";
 import Footer from "./components/Footer";
 import LoginModal from "./components/LoginModal";
+import BookingModal from "./components/BookingModal";
 
 const DEFAULT_PROFESSIONALS = [
   // Vijayawada
@@ -43,10 +44,19 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [loginOpen, setLoginOpen] = useState(false);
 
+  const [bookingOpen, setBookingOpen] = useState(false);
+  const [selectedPro, setSelectedPro] = useState(null);
+  const [bookings, setBookings] = useState([]);
+  const [toast, setToast] = useState("");
+
   useEffect(() => {
     const saved = localStorage.getItem("eh_user");
     if (saved) {
       try { setUser(JSON.parse(saved)); } catch { /* ignore */ }
+    }
+    const savedBookings = localStorage.getItem("eh_bookings");
+    if (savedBookings) {
+      try { setBookings(JSON.parse(savedBookings)); } catch { /* ignore */ }
     }
   }, []);
 
@@ -54,6 +64,10 @@ export default function App() {
     if (user) localStorage.setItem("eh_user", JSON.stringify(user));
     else localStorage.removeItem("eh_user");
   }, [user]);
+
+  useEffect(() => {
+    localStorage.setItem("eh_bookings", JSON.stringify(bookings));
+  }, [bookings]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -65,6 +79,20 @@ export default function App() {
       return matchesService && matchesQuery;
     });
   }, [query, service]);
+
+  function openBooking(pro) {
+    setSelectedPro(pro);
+    setBookingOpen(true);
+  }
+
+  function handleConfirmBooking(payload) {
+    const withUser = user ? { userId: user.id, userName: user.name || user.email } : null;
+    const record = { id: `${payload.professionalId}-${Date.now()}`, ...payload, ...(withUser || {}), status: "confirmed" };
+    setBookings((prev) => [record, ...prev]);
+    setBookingOpen(false);
+    setToast(`Booked ${payload.slot} with ${payload.professionalName}`);
+    setTimeout(() => setToast(""), 3000);
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
@@ -81,12 +109,41 @@ export default function App() {
           <span className="text-sm text-gray-600">{filtered.length} found</span>
         </div>
 
-        <ProfessionalsGrid professionals={filtered} />
+        <ProfessionalsGrid professionals={filtered} onBook={openBooking} />
+
+        {bookings.length > 0 && (
+          <section className="mt-10">
+            <h3 className="mb-3 text-lg font-semibold">Your bookings</h3>
+            <ul className="divide-y rounded-lg border bg-white">
+              {bookings.map((b) => (
+                <li key={b.id} className="flex flex-col gap-1 px-4 py-3 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{b.professionalName} • {b.service}</p>
+                    <p className="text-sm text-gray-600">{b.location} • {b.slot}</p>
+                  </div>
+                  <span className="mt-1 inline-flex w-max rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 md:mt-0">{b.status}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
       </main>
 
       <Footer />
 
       <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} onAuthSuccess={setUser} />
+      <BookingModal
+        open={bookingOpen}
+        onClose={() => setBookingOpen(false)}
+        professional={selectedPro}
+        onConfirm={handleConfirmBooking}
+      />
+
+      {toast && (
+        <div className="fixed bottom-4 left-1/2 z-[70] -translate-x-1/2 rounded-lg bg-gray-900 px-4 py-2 text-sm text-white shadow-lg">
+          {toast}
+        </div>
+      )}
     </div>
   );
 }

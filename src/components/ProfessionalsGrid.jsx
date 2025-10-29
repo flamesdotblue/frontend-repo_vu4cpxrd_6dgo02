@@ -14,7 +14,7 @@ function ServiceBadge({ type }) {
   );
 }
 
-export default function ProfessionalsGrid({ professionals }) {
+export default function ProfessionalsGrid({ professionals, onBook }) {
   return (
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {professionals.map((pro) => (
@@ -53,7 +53,10 @@ export default function ProfessionalsGrid({ professionals }) {
               >
                 <Phone className="h-4 w-4" /> Call now
               </a>
-              <button className="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-white text-sm hover:bg-blue-700">
+              <button
+                onClick={() => onBook && onBook(pro)}
+                className="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-white text-sm hover:bg-blue-700"
+              >
                 Book slot
               </button>
             </div>
