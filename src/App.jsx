@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import Filters from "./components/Filters";
 import ProfessionalsGrid from "./components/ProfessionalsGrid";
 import Footer from "./components/Footer";
+import LoginModal from "./components/LoginModal";
 
 const DEFAULT_PROFESSIONALS = [
   // Vijayawada
@@ -39,6 +40,20 @@ const DEFAULT_PROFESSIONALS = [
 export default function App() {
   const [query, setQuery] = useState("");
   const [service, setService] = useState("");
+  const [user, setUser] = useState(null);
+  const [loginOpen, setLoginOpen] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("eh_user");
+    if (saved) {
+      try { setUser(JSON.parse(saved)); } catch { /* ignore */ }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user) localStorage.setItem("eh_user", JSON.stringify(user));
+    else localStorage.removeItem("eh_user");
+  }, [user]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -53,7 +68,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
-      <Header />
+      <Header user={user} onLoginClick={() => setLoginOpen(true)} onLogout={() => setUser(null)} />
       <Hero />
 
       <main className="mx-auto max-w-7xl px-4">
@@ -70,6 +85,8 @@ export default function App() {
       </main>
 
       <Footer />
+
+      <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} onAuthSuccess={setUser} />
     </div>
   );
 }
