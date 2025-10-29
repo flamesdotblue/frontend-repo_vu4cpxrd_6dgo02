@@ -2,8 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import Header from "./components/Header";
 import Filters from "./components/Filters";
 import ProfessionalsGrid from "./components/ProfessionalsGrid";
-import BookingModal from "./components/BookingModal";
-import AuthModal from "./components/AuthModal";
+import Modals from "./components/Modals";
 
 const BACKEND = (import.meta.env.VITE_BACKEND_URL || "http://localhost:8000").replace(/\/$/, "");
 
@@ -204,19 +203,20 @@ export default function App() {
         </section>
       </main>
 
-      <BookingModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        professional={activePro}
-        onConfirm={handleConfirmBooking}
-      />
-
-      <AuthModal
-        open={authOpen}
-        onClose={() => setAuthOpen(false)}
-        onAuthed={(u) => {
-          setUser(u);
-          setAuthOpen(false);
+      <Modals
+        booking={{
+          open: modalOpen,
+          onClose: () => setModalOpen(false),
+          professional: activePro,
+          onConfirm: handleConfirmBooking,
+        }}
+        auth={{
+          open: authOpen,
+          onClose: () => setAuthOpen(false),
+          onAuthed: (u) => {
+            setUser(u);
+            setAuthOpen(false);
+          },
         }}
       />
     </div>
