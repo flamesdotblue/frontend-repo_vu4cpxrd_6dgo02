@@ -3,99 +3,164 @@ import Header from "./components/Header";
 import Filters from "./components/Filters";
 import ProfessionalsGrid from "./components/ProfessionalsGrid";
 import BookingModal from "./components/BookingModal";
+import AuthModal from "./components/AuthModal";
 
-// Expanded catalog of professionals across Andhra Pradesh
-const PROFESSIONALS = [
-  // Plumbers
-  { id: "pl-1", name: "Ravi Kumar", location: "Vijayawada", service: "plumber", rating: 4.7, bio: "Expert in leak repairs, pipe fitting, and bathroom installations.", phone: "+91 9876543101", availability: ["Today · 10:00-11:00", "Today · 12:00-13:00", "Tomorrow · 09:00-10:00", "Tomorrow · 16:00-17:00"] },
-  { id: "pl-2", name: "Suresh B", location: "Guntur", service: "plumber", rating: 4.5, bio: "Quick response for emergencies, water tank and motor setup.", phone: "+91 9876543102", availability: ["Today · 11:00-12:00", "Today · 15:00-16:00", "Tomorrow · 10:00-11:00"] },
-  { id: "pl-3", name: "Mohan P", location: "Visakhapatnam", service: "plumber", rating: 4.8, bio: "15+ years experience, PVC/CPVC/UPVC specialist.", phone: "+91 9876543103", availability: ["Today · 09:00-10:00", "Today · 17:00-18:00", "Tomorrow · 14:00-15:00"] },
-  { id: "pl-4", name: "Anil K", location: "Tirupati", service: "plumber", rating: 4.3, bio: "Bathroom remodeling, geyser connection, drainage cleaning.", phone: "+91 9876543104", availability: ["Today · 13:00-14:00", "Tomorrow · 11:00-12:00", "Tomorrow · 18:00-19:00"] },
-  { id: "pl-5", name: "Venkatesh", location: "Nellore", service: "plumber", rating: 4.6, bio: "Kitchen and bathroom fixtures, tap and shower replacements.", phone: "+91 9876543105", availability: ["Today · 10:30-11:30", "Tomorrow · 09:30-10:30", "Tomorrow · 15:30-16:30"] },
-  { id: "pl-6", name: "Karthik", location: "Rajahmundry", service: "plumber", rating: 4.4, bio: "Overhead tank installation and maintenance specialist.", phone: "+91 9876543106", availability: ["Today · 12:30-13:30", "Tomorrow · 10:30-11:30", "Tomorrow · 17:30-18:30"] },
-
-  // Electricians
-  { id: "el-1", name: "Pradeep", location: "Vijayawada", service: "electrician", rating: 4.8, bio: "Wiring, MCB/DB upgrades, inverter and stabilizer setup.", phone: "+91 9876543201", availability: ["Today · 10:00-11:00", "Today · 16:00-17:00", "Tomorrow · 11:00-12:00"] },
-  { id: "el-2", name: "Raghav", location: "Guntur", service: "electrician", rating: 4.6, bio: "Fan, light, switchboard installation and fault finding.", phone: "+91 9876543202", availability: ["Today · 12:00-13:00", "Tomorrow · 09:00-10:00", "Tomorrow · 13:00-14:00"] },
-  { id: "el-3", name: "Sai Teja", location: "Visakhapatnam", service: "electrician", rating: 4.7, bio: "Smart doorbells, Wi-Fi switches, and home automation basics.", phone: "+91 9876543203", availability: ["Today · 11:00-12:00", "Today · 14:00-15:00", "Tomorrow · 10:00-11:00"] },
-  { id: "el-4", name: "Nagaraju", location: "Tirupati", service: "electrician", rating: 4.5, bio: "Geyser, chimney, and kitchen appliance wiring.", phone: "+91 9876543204", availability: ["Today · 09:00-10:00", "Tomorrow · 12:00-13:00", "Tomorrow · 17:00-18:00"] },
-  { id: "el-5", name: "Mahesh", location: "Kakinada", service: "electrician", rating: 4.4, bio: "Short-circuit fixes and safety checks.", phone: "+91 9876543205", availability: ["Today · 13:00-14:00", "Tomorrow · 14:00-15:00", "Tomorrow · 18:00-19:00"] },
-  { id: "el-6", name: "Vivek", location: "Visakhapatnam", service: "electrician", rating: 4.9, bio: "Premium fittings, LED upgrades, and neat workmanship.", phone: "+91 9876543206", availability: ["Today · 15:00-16:00", "Tomorrow · 11:30-12:30", "Tomorrow · 16:30-17:30"] },
-
-  // Gas service
-  { id: "gs-1", name: "Imran", location: "Vijayawada", service: "gas", rating: 4.6, bio: "Gas stove repair, pipeline inspection, leak detection.", phone: "+91 9876543301", availability: ["Today · 10:00-11:00", "Today · 12:00-13:00", "Tomorrow · 09:00-10:00"] },
-  { id: "gs-2", name: "Rafi", location: "Guntur", service: "gas", rating: 4.5, bio: "Regulator, hose replacement, and burner cleaning.", phone: "+91 9876543302", availability: ["Today · 11:00-12:00", "Tomorrow · 12:00-13:00", "Tomorrow · 15:00-16:00"] },
-  { id: "gs-3", name: "Jayanth", location: "Visakhapatnam", service: "gas", rating: 4.7, bio: "Certified technician for safety-first gas work.", phone: "+91 9876543303", availability: ["Today · 14:00-15:00", "Tomorrow · 10:00-11:00", "Tomorrow · 17:00-18:00"] },
-  { id: "gs-4", name: "Farhan", location: "Tirupati", service: "gas", rating: 4.3, bio: "New pipeline fitting and stove ignition repairs.", phone: "+91 9876543304", availability: ["Today · 09:30-10:30", "Tomorrow · 13:30-14:30", "Tomorrow · 18:30-19:30"] },
-  { id: "gs-5", name: "Naresh", location: "Nellore", service: "gas", rating: 4.4, bio: "Emergency leak control and ventilation checks.", phone: "+91 9876543305", availability: ["Today · 16:00-17:00", "Tomorrow · 11:00-12:00", "Tomorrow · 16:00-17:00"] },
-
-  // AC Repair
-  { id: "ac-1", name: "Arjun", location: "Vijayawada", service: "electrician", rating: 4.6, bio: "AC installation, gas refill, and servicing.", phone: "+91 9876543401", availability: ["Today · 10:00-11:00", "Tomorrow · 15:00-16:00", "Tomorrow · 18:00-19:00"] },
-  { id: "ac-2", name: "Shiva", location: "Visakhapatnam", service: "electrician", rating: 4.5, bio: "Split/Window AC troubleshooting and maintenance.", phone: "+91 9876543402", availability: ["Today · 11:00-12:00", "Today · 17:00-18:00", "Tomorrow · 12:00-13:00"] },
-
-  // Locksmith
-  { id: "ls-1", name: "Ramesh", location: "Vijayawada", service: "electrician", rating: 4.4, bio: "Emergency door unlocks and lock replacements.", phone: "+91 9876543501", availability: ["Today · 09:00-10:00", "Today · 18:00-19:00", "Tomorrow · 10:00-11:00"] },
-  { id: "ls-2", name: "Gopi", location: "Guntur", service: "electrician", rating: 4.2, bio: "Smart lock setup and key duplication.", phone: "+91 9876543502", availability: ["Today · 12:00-13:00", "Tomorrow · 09:00-10:00", "Tomorrow · 14:00-15:00"] },
-
-  // Carpenter
-  { id: "cp-1", name: "Srinu", location: "Rajahmundry", service: "plumber", rating: 4.5, bio: "Furniture repair, assembly, and custom carpentry.", phone: "+91 9876543601", availability: ["Today · 11:00-12:00", "Today · 16:00-17:00", "Tomorrow · 12:00-13:00"] },
-  { id: "cp-2", name: "Hari", location: "Vizianagaram", service: "plumber", rating: 4.3, bio: "Door, window, and hinge fixes.", phone: "+91 9876543602", availability: ["Today · 10:00-11:00", "Tomorrow · 15:00-16:00", "Tomorrow · 18:00-19:00"] },
-
-  // Cleaning
-  { id: "cl-1", name: "Deepika", location: "Visakhapatnam", service: "plumber", rating: 4.7, bio: "Kitchen and bathroom deep cleaning expert.", phone: "+91 9876543701", availability: ["Today · 09:00-10:00", "Today · 14:00-15:00", "Tomorrow · 11:00-12:00"] },
-  { id: "cl-2", name: "Sanjana", location: "Tirupati", service: "plumber", rating: 4.6, bio: "Sofa, mattress, and home sanitization.", phone: "+91 9876543702", availability: ["Today · 12:00-13:00", "Tomorrow · 10:00-11:00", "Tomorrow · 16:00-17:00"] },
-
-  // Pest Control
-  { id: "pc-1", name: "Anvesh", location: "Nellore", service: "gas", rating: 4.5, bio: "Termite, cockroach, and mosquito control.", phone: "+91 9876543801", availability: ["Today · 13:00-14:00", "Tomorrow · 09:00-10:00", "Tomorrow · 14:00-15:00"] },
-  { id: "pc-2", name: "Vasanth", location: "Kakinada", service: "gas", rating: 4.4, bio: "Eco-friendly pest management solutions.", phone: "+91 9876543802", availability: ["Today · 11:30-12:30", "Tomorrow · 12:30-13:30", "Tomorrow · 17:30-18:30"] },
-];
+const BACKEND = (import.meta.env.VITE_BACKEND_URL || "http://localhost:8000").replace(/\/$/, "");
 
 export default function App() {
   const [query, setQuery] = useState("");
   const [service, setService] = useState("");
-  const [bookings, setBookings] = useState(() => {
-    try {
-      const raw = localStorage.getItem("eh_bookings");
-      return raw ? JSON.parse(raw) : [];
-    } catch {
-      return [];
-    }
-  });
+
+  const [professionals, setProfessionals] = useState([]);
+  const [loadingPros, setLoadingPros] = useState(false);
+
+  const [bookings, setBookings] = useState([]);
+  const [loadingBookings, setLoadingBookings] = useState(false);
+
   const [user, setUser] = useState(null);
+  const [authOpen, setAuthOpen] = useState(false);
 
   // Booking modal state
   const [modalOpen, setModalOpen] = useState(false);
   const [activePro, setActivePro] = useState(null);
 
+  // Fetch professionals when filters change
   useEffect(() => {
-    localStorage.setItem("eh_bookings", JSON.stringify(bookings));
-  }, [bookings]);
-
-  const filtered = useMemo(() => {
-    return PROFESSIONALS.filter((p) => {
-      const matchesService = service ? p.service === service : true;
-      const matchesQuery = query
-        ? p.location.toLowerCase().includes(query.toLowerCase()) || p.name.toLowerCase().includes(query.toLowerCase())
-        : true;
-      return matchesService && matchesQuery;
-    }).sort((a, b) => b.rating - a.rating);
+    const controller = new AbortController();
+    async function load() {
+      setLoadingPros(true);
+      try {
+        const params = new URLSearchParams();
+        if (service) params.set("service_type", service);
+        if (query) params.set("location", query);
+        const res = await fetch(`${BACKEND}/workers${params.toString() ? `?${params.toString()}` : ""}`);
+        const data = await res.json();
+        const mapped = (Array.isArray(data) ? data : []).map((w) => ({
+          id: w.id,
+          name: w.name,
+          location: w.location,
+          service: w.service_type,
+          rating: typeof w.rating === "number" ? w.rating : 4.5,
+          bio: w.bio || "Trusted professional",
+          availability: Array.isArray(w.availability) ? w.availability : [],
+          phone: w.phone || "+91 9999999999",
+        }));
+        setProfessionals(mapped);
+      } catch (e) {
+        setProfessionals([]);
+      } finally {
+        setLoadingPros(false);
+      }
+    }
+    load();
+    return () => controller.abort();
   }, [query, service]);
 
+  // Fetch bookings for logged-in user
+  useEffect(() => {
+    if (!user?.id) {
+      setBookings([]);
+      return;
+    }
+    const controller = new AbortController();
+    async function loadBookings() {
+      setLoadingBookings(true);
+      try {
+        const res = await fetch(`${BACKEND}/bookings?user_id=${encodeURIComponent(user.id)}`);
+        const data = await res.json();
+        const list = Array.isArray(data) ? data : [];
+        // display friendly fields by joining with professionals in memory when possible
+        const proMap = new Map(professionals.map((p) => [p.id, p]));
+        const mapped = list.map((b) => {
+          const pro = proMap.get(b.worker_id);
+          return {
+            id: b.id,
+            professionalName: pro?.name || b.worker_id,
+            service: pro?.service || "service",
+            location: pro?.location || "",
+            slot: b.time_slot,
+            createdAt: b.created_at || new Date().toISOString(),
+          };
+        });
+        setBookings(mapped);
+      } catch (e) {
+        setBookings([]);
+      } finally {
+        setLoadingBookings(false);
+      }
+    }
+    loadBookings();
+    return () => controller.abort();
+  }, [user, professionals]);
+
+  const filtered = useMemo(() => {
+    // Server already filtered; keep sort by rating for consistency
+    return professionals.slice().sort((a, b) => (b.rating || 0) - (a.rating || 0));
+  }, [professionals]);
+
   const handleBook = (pro) => {
+    if (!user) {
+      setAuthOpen(true);
+      return;
+    }
     setActivePro(pro);
     setModalOpen(true);
   };
 
-  const handleConfirmBooking = (payload) => {
-    setBookings((prev) => [payload, ...prev]);
-    setModalOpen(false);
+  const handleConfirmBooking = async (payload) => {
+    if (!user) return;
+    // payload: {professionalId, professionalName, service, location, slot, note, createdAt}
+    try {
+      const parseDate = () => {
+        const s = String(payload.slot || "");
+        const today = new Date();
+        const d = new Date(today);
+        if (s.toLowerCase().includes("tomorrow")) {
+          d.setDate(today.getDate() + 1);
+        }
+        return d.toISOString().slice(0, 10);
+      };
+      const body = {
+        user_id: user.id,
+        worker_id: payload.professionalId,
+        service_date: parseDate(),
+        time_slot: payload.slot,
+        address: user.address || "",
+      };
+      const res = await fetch(`${BACKEND}/bookings`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.detail || "Failed to create booking");
+
+      // Refresh bookings after successful creation
+      setModalOpen(false);
+      setActivePro(null);
+      // Optimistically add a simplified entry to UI
+      setBookings((prev) => [
+        {
+          id: data.id,
+          professionalName: payload.professionalName,
+          service: payload.service,
+          location: payload.location,
+          slot: payload.slot,
+          createdAt: data.created_at || new Date().toISOString(),
+        },
+        ...prev,
+      ]);
+    } catch (e) {
+      console.error(e);
+      alert(e.message || "Could not create booking");
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <Header
         user={user}
-        onLoginClick={() => setUser({ name: "Guest" })}
+        onLoginClick={() => setAuthOpen(true)}
         onLogout={() => setUser(null)}
       />
 
@@ -110,22 +175,26 @@ export default function App() {
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-gray-900">Available professionals</h2>
-            <span className="text-sm text-gray-600">{filtered.length} found</span>
+            <span className="text-sm text-gray-600">{loadingPros ? "Loading…" : `${filtered.length} found`}</span>
           </div>
           <ProfessionalsGrid professionals={filtered} onBook={handleBook} />
         </section>
 
         <section className="space-y-3">
           <h3 className="text-base font-semibold text-gray-900">Your bookings</h3>
-          {bookings.length === 0 ? (
+          {!user ? (
+            <p className="text-sm text-gray-600">Login to see and manage your bookings.</p>
+          ) : loadingBookings ? (
+            <p className="text-sm text-gray-600">Loading your bookings…</p>
+          ) : bookings.length === 0 ? (
             <p className="text-sm text-gray-600">No bookings yet. Pick a professional and book a convenient slot.</p>
           ) : (
             <ul className="divide-y rounded-lg border bg-white">
-              {bookings.map((b, idx) => (
-                <li key={idx} className="p-4 text-sm flex flex-wrap items-center gap-2 justify-between">
+              {bookings.map((b) => (
+                <li key={b.id} className="p-4 text-sm flex flex-wrap items-center gap-2 justify-between">
                   <div>
                     <p className="font-medium text-gray-900">{b.professionalName}</p>
-                    <p className="text-gray-600">{b.service.toUpperCase()} · {b.location}</p>
+                    <p className="text-gray-600">{b.service?.toUpperCase()} · {b.location}</p>
                   </div>
                   <div className="text-gray-700">{b.slot}</div>
                 </li>
@@ -140,6 +209,15 @@ export default function App() {
         onClose={() => setModalOpen(false)}
         professional={activePro}
         onConfirm={handleConfirmBooking}
+      />
+
+      <AuthModal
+        open={authOpen}
+        onClose={() => setAuthOpen(false)}
+        onAuthed={(u) => {
+          setUser(u);
+          setAuthOpen(false);
+        }}
       />
     </div>
   );
